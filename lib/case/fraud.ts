@@ -12,6 +12,10 @@ export const fraud: CaseModule = {
   const workedYears = 4 + Math.floor(c.rnd() * 6);
   const reverseDays = 2 + Math.floor(c.rnd() * 3);
   const repairDays = 3 + Math.floor(c.rnd() * 4);
+  const betting = `$${(3 + Math.floor(c.rnd() * 7)) * 500}`;
+  const cardBalance = `$${(Number(c.amount.replace(/[^0-9]/g, "")) + 1000 + Math.floor(c.rnd() * 8) * 250).toLocaleString("en-US")}`;
+  const threshold = `$${(Number(c.amount.replace(/[^0-9]/g, "")) * 2).toLocaleString("en-US")}`;
+  const singleDeposit = `$${(2 + Math.floor(c.rnd() * 4)) * 250}`;
 
   return {
     charge: "Grand larceny in the first degree",
@@ -19,30 +23,30 @@ export const fraud: CaseModule = {
     startJury: 44,
     setting: `${c.weekday} ${c.date}, ${String(transferHour).padStart(2, "0")}:14 — remote banking session, ${c.place}, ${c.street}, ${c.district}.`,
     incident: `At ${String(transferHour).padStart(2, "0")}:14 a payment instruction moved ${c.amount} from the operating account of ${c.place} to an account at a second bank opened eleven days earlier in the name of a shell company. The instruction was authorised with the credentials of ${c.defendant.name}, who had kept the books for ${workedYears} years.`,
-    theory: `The State says only one person had the credentials and the motive. ${c.defendant.name} logged in at ${String(transferHour).padStart(2, "0")}:14 from the office network, sent the payment, and spent the next two weeks covering it. Her own laptop was the device on the session. She was ${c.amount} in debt on a card and a betting account. Nobody else in the building could have done it without the password.`,
+    theory: `The State says the device and the bank's client are the same person. ${c.defendant.name} was at that keyboard when the payment left at ${String(transferHour).padStart(2, "0")}:14, on the office network, from her own laptop's device identifier, and the State says she moved the entries afterwards to cover it. She carried a card balance of ${cardBalance} and money in a betting account. The credential was shared; the laptop was not.`,
     links: {
-      identity: `The session {{session}} was opened with ${c.defendant.name}'s credentials and from her laptop's device identifier.`,
+      identity: `The session {{session}} was opened with the finance.ops credential from the device identifier of ${c.defendant.name}'s laptop.`,
       timeline: `The transfer left at ${String(transferHour).padStart(2, "0")}:14:38 and cleared at ${String(transferHour).padStart(2, "0")}:19, inside the session that stayed open until ${String(transferHour).padStart(2, "0")}:41.`,
-      forensics: `The authorisation on the payment file carries ${c.defendant.name}'s user signature and the bank's own authentication token {{token}}.`,
+      forensics: `The authorisation on the payment file {{token}} is signed with the finance.ops credential and the bank's own authentication token, and ${c.defendant.name} was one of the four people who held it.`,
       custody: `The bank produced the transaction record {{record}} under subpoena, extracted by its own operations team.`,
-      motive: `${c.defendant.name} carried ${c.amount} across a credit card and a betting account, and the withdrawals {{spending}} track the payments out of the company account.`,
+      motive: `${c.defendant.name} carried a card balance of ${cardBalance} and was depositing into a betting account every week {{spending}}, and the State says the company money fed both.`,
     },
     clientStatement: `I did the books for ${workedYears} years and I never touched the operating account. That login is on a piece of paper taped inside the finance cupboard, four of us use it. My laptop was with the repair shop that week. I do not gamble on anything but the horses, and I am behind on that, I know it.`,
     base: (ctx) => {
       exhibit(ctx, "session", "Bank session extract",
-        `Session opened ${String(transferHour).padStart(2, "0")}:03 from 203.0.113.24, bank-wide office NAT. Device identifier: LPT-FIN-02. Closed ${String(transferHour).padStart(2, "0")}:41. Session survived two credential failures at 22:58 and 23:01.`);
+        `Session opened ${String(transferHour).padStart(2, "0")}:03 from 203.0.113.24, the single outbound address for the whole building. Device identifier: LPT-FIN-02. Closed ${String(transferHour).padStart(2, "0")}:41. Two credential failures preceded it, at ${String(transferHour - 1).padStart(2, "0")}:58 and ${String(transferHour).padStart(2, "0")}:01.`);
       exhibit(ctx, "token", "Payment authorisation file",
-        `Instruction 88412. User signature: finance.ops. Token reference: 4471-AA. No second approver field completed. The bank's file accepts a single-signature instruction under ${c.amount}.`);
+        `Instruction 88412. User signature: finance.ops. Token reference: 4471-AA. No second approver field completed. The bank's own policy permits a single-signature instruction below ${threshold}.`);
       exhibit(ctx, "record", "Bank subpoena response",
-        `Statement extract, operating account, 31 days. Fields supplied: date, value, reference, amount, balance. Fields not supplied: counterparty bank, return codes, reversal flags. Certificate of authenticity signed by the operations supervisor.`);
+        `Statement extract, operating account, covering ${c.date} only. Fields supplied: date, value, reference, amount, balance. Fields not supplied: counterparty bank, return codes, reversal flags. Certificate of authenticity signed by the operations supervisor.`);
       exhibit(ctx, "spending", "Card and betting statements",
-        `Card balance ${c.amount}, minimum payment met every month. Betting account: net deposits ${Math.floor(c.rnd() * 9 + 3) * 500} over the year, net position negative. No single deposit above ${Math.floor(c.rnd() * 4 + 2) * 250}.`);
+        `Card balance ${cardBalance}, minimum payment met every month. Betting account: net deposits ${betting} over the year, net position negative. No single deposit above ${singleDeposit}.`);
       witness(ctx, "cfo", cfo, "Chief financial officer",
-        `Finance has one shared login for the banking portal. It is taped inside the cupboard. IT has been asked to fix it twice. I signed the instruction policy, and it permits a single signature below ${c.amount}.`);
+        `Finance has one shared login for the banking portal. It is taped inside the cupboard. IT has been asked to fix it twice. I signed the instruction policy, and it permits a single signature below ${threshold}.`);
       witness(ctx, "teller", teller, "Second bank, account opening officer",
         `The shell company account was opened in person by a man of about fifty with a passport in the name on the application. Not the defendant. I would say that with confidence; I sat with him for forty minutes.`);
       witness(ctx, "auditor", auditor, "Forensic accountant, instructed by the defence",
-        `I asked the bank for reversal flags and counterparty data. The extract I was given had neither. My own read of the account run shows a credit that matches the transfer, arriving after the extract period ends.`);
+        `I asked the bank for reversal flags and counterparty data. The extract I was given had neither. My own read of the account run shows the payment coming back ${reverseDays} days after the day the extract covers, with the same reference.`);
     },
     flaws: [
       (ctx) => {
@@ -57,7 +61,7 @@ export const fraud: CaseModule = {
         };
       },
       (ctx) => {
-        const people = 3 + Math.floor(ctx.rnd() * 3);
+        const people = 4;
         exhibit(ctx, "policy", "Finance access policy and IT ticket",
           `Portal access policy F-4: one shared credential for ${people} finance staff, no per-user accounts, no MFA. IT ticket 1183, raised eleven months earlier, "finance portal needs individual logins", still open, priority low.`);
         return {
@@ -70,7 +74,7 @@ export const fraud: CaseModule = {
       },
       (ctx) => {
         exhibit(ctx, "reversal", "Reversal and return advice",
-          `Payment 88412 returned ${reverseDays} days later, reference RET-88412, full amount ${c.amount}, reason code "account closed by receiving bank". The receiving account was frozen on the same day. The company's operating balance was restored.`);
+          `Payment 88412 returned ${reverseDays} days later, reference RET-88412, full amount ${c.amount}, reason code "account restricted by receiving bank". The receiving account was frozen on the same day. The company's operating balance was restored.`);
         return {
           id: "money-returned",
           name: "The money came back",
@@ -92,7 +96,7 @@ export const fraud: CaseModule = {
       },
       (ctx) => {
         exhibit(ctx, "extract", "Extraction specification and change log",
-          `Extraction run by the bank's operations team, unaccompanied, at ${c.at(1440 * 5)}. Script version 3 does not select return codes, reversal flags or counterparty fields. The script was amended on the same day to exclude them "for clarity". No custodian was present for the run.`);
+          `Extraction run by the bank's operations team five days later, unaccompanied. Script version 3 does not select return codes, reversal flags or counterparty fields. The script was amended on the same day to exclude them "for clarity". No custodian was present for the run.`);
         return {
           id: "extract-filtered",
           name: "The extract was filtered",

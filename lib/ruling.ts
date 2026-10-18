@@ -56,7 +56,7 @@ export async function readExchange(
     renderDocket(caseFile),
     `THE DEFENCE ARGUED: "${quoted}"`,
     `THE PROSECUTION ANSWERED: "${reply}"`,
-    `Defects the defence reached: ${read.flaws.filter((f) => f.p >= 0.62).map((f) => f.name).join("; ") || "none"}.`,
+    `Defects the defence reached: ${read.flaws.filter((f) => f.p >= 0.55).map((f) => f.name).join("; ") || "none"}.`,
   ].join("\n\n");
 
   const { answers, ms } = await askJev(state, questions);

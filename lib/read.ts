@@ -29,7 +29,11 @@ export async function readDefense(
       type: "choice",
       instructions: `The defence counsel has just said, word for word: "${quoted}" Which link of the State's chain of proof is this argument attacking?`,
       criteria: {
-        ...Object.fromEntries(LINK_ORDER.map((k) => [k, `${LINK_LABEL[k]}: ${caseFile.links.find((l) => l.key === k)?.claim}`])),
+        identity: "that it was the defendant who did this at all",
+        timeline: "that it happened when and where the State says it did",
+        forensics: "the physical or forensic evidence tying the defendant to the act",
+        custody: "how the police, lab or bank handled the evidence and whether the record is complete",
+        motive: "the defendant's reason, intent or gain",
         none: "it does not attack any particular link of the State's proof",
       },
     },
@@ -62,11 +66,12 @@ export async function readDefense(
     },
   };
 
+  const flawQuestions: Record<string, Question> = {};
   caseFile.flaws.forEach((flaw, index) => {
-    questions[`flaw_${index}`] = {
+    flawQuestions[`flaw_${index}`] = {
       type: "noul",
-      instructions: `Defence counsel said: "${quoted}" Does that argument specifically identify and rely on this exact defect in the State's case: ${flaw.thesis}`,
-      criteria: { true: "identifies and uses this defect", false: "does not" },
+      instructions: `The State's proof has this weakness: ${flaw.thesis} Defence counsel said: "${quoted}" Does the argument put that weakness to the court? Answer true if the argument uses it, even in different words or only in part.`,
+      criteria: { true: "the argument uses this weakness", false: "the argument does not reach it" },
     };
   });
 
@@ -77,11 +82,13 @@ export async function readDefense(
     `It is exchange ${history.length + 1} of ${caseFile.rounds}. Defence counsel has the floor.`,
   ].join("\n\n");
 
-  const { answers, ms } = await askJev(state, questions);
+  const [style, defects] = await Promise.all([askJev(state, questions), askJev(state, flawQuestions)]);
+  const answers = style.answers;
+  const ms = Math.max(style.ms, defects.ms);
   const flaws = caseFile.flaws.map((flaw, index) => ({
     id: flaw.id,
     name: flaw.name,
-    p: noul(answers, `flaw_${index}`),
+    p: noul(defects.answers, `flaw_${index}`),
   }));
   const link = choice(answers, "link") as LinkKey | "none";
   return {

@@ -3,10 +3,9 @@
 import { useEffect, useRef } from "react";
 import { PROSECUTOR_NAME } from "@/lib/docket";
 import { TECHNIQUE_LABEL } from "@/lib/labels";
+import { FLAW_FLOOR } from "@/lib/mechanics";
 import type { CaseFile, Exchange } from "@/lib/types";
 import { useTyped } from "./useTyped";
-
-const FLOOR = 0.62;
 
 /** A turn as it arrives: the read lands first, the speech next, the ruling last. */
 export type TurnLike = Partial<Exchange> & { argument: string; round: number };
@@ -31,7 +30,7 @@ export function TurnView({
 }) {
   const [shown, done] = useTyped(animate && turn.reply ? turn.reply : "", (turn.reply?.length ?? 0) * 26);
   const read = turn.read;
-  const hits = read ? read.flaws.filter((f) => f.p >= FLOOR) : [];
+  const hits = read ? read.flaws.filter((f) => f.p >= FLAW_FLOOR) : [];
 
   useEffect(() => {
     if (animate && done) onDone?.();

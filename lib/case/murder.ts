@@ -11,7 +11,7 @@ export const murder: CaseModule = {
   const windowLo = 20 + Math.floor(c.rnd() * 15);
   const windowHi = windowLo + 80 + Math.floor(c.rnd() * 20);
   const lateBy = 40 + Math.floor(c.rnd() * 20);
-  const towerMiles = 2 + Math.floor(c.rnd() * 3);
+  const flatFromMast = 1 + Math.round(c.rnd() * 9) / 10;
   const bagDays = 2 + Math.floor(c.rnd() * 3);
   const willMonths = 7 + Math.floor(c.rnd() * 5);
 
@@ -26,44 +26,44 @@ export const murder: CaseModule = {
       identity: `${neighbour} watched ${c.defendant.name} and ${c.victim} leave the bar together at ${c.at(-95)}, and ${c.defendant.name}'s phone was on the mast covering the lot at ${c.at(42)}.`,
       timeline: `${c.examiner} puts death between ${c.at(windowLo)} and ${c.at(windowHi)}, inside the window when ${c.defendant.name} was near the lot.`,
       forensics: `${c.victim}'s blood was on the right cuff of the jacket {{jacket}} seized from ${c.defendant.name}'s flat.`,
-      custody: `The jacket went to the lab with the rest of the seizure {{intake}} and was tested ${bagDays + 2} days later.`,
-      motive: `${c.victim} was changing his will {{will}} and had told ${bartender} that ${c.defendant.name} would be looked after. That is the State's reason for the killing.`,
+      custody: `The jacket went into property locker 14 with the rest of the seizure {{intake}}, reached the lab on ${c.after(1 + bagDays)}, and was tested there.`,
+      motive: `${c.victim} had told ${bartender} that ${c.defendant.name} would be looked after, and the will in evidence {{will}} was executed ${willMonths} months before the death. The State says the money is the reason for the killing.`,
     },
     clientStatement: `I had two drinks with him and I left at ${c.at(-118)}. He was fine. He was talking about a boat. I walked home. When I heard he was dead I went to the lot and I touched him, I put my hand on his shoulder to see if he was breathing. That is why he is on my jacket.`,
     base: (ctx) => {
       exhibit(ctx, "jacket", "Forensic report, jacket cuff",
-        `One contact transfer stain, 3 cm by 2 cm, victim's blood, right cuff. No spatter, no cast-off, no impact pattern anywhere on the garment. Garment examined ${c.after(3)}.`);
+        `One contact transfer stain, 3 cm by 2 cm, victim's blood, right cuff. No spatter, no cast-off, no impact pattern anywhere on the garment. Garment examined ${c.after(1 + bagDays)}.`);
       exhibit(ctx, "intake", "Evidence intake sheet",
-        `Seizure from the flat on ${c.after(0)}: one jacket, one pair of boots, two phones. Jacket placed in a plastic bag and not sealed. Property locker 14. Lab receipt ${c.after(bagDays)}.`);
+        `Seizure from the flat on the morning of ${c.after(1)}: one jacket, one pair of boots, two phones. Jacket sealed in a plastic bag, seal 00412, into property locker 14. Lab receipt ${c.after(1 + bagDays)}.`);
       exhibit(ctx, "autopsy", "Autopsy summary",
         `Blunt force trauma, left parietal. Single impact. Body examined at the scene ${c.at(212)}. Time of death estimated from gastric contents and body temperature, interval ${c.at(windowLo)} to ${c.at(windowHi)}, the examiner noting that the ambient temperature makes the estimate a soft one.`);
       exhibit(ctx, "phone", "Cell site record",
-        `Outgoing call ${c.at(42)}, 41 seconds, mast 1172. Mast 1172 serves a radius of ${towerMiles} miles across three sectors. The flat is ${(towerMiles - 1).toFixed(1)} miles from the mast.`);
+        `Outgoing call ${c.at(42)}, 41 seconds, mast 1172. Mast 1172 serves a radius of ${(flatFromMast + 2).toFixed(1)} miles across three sectors. The flat is ${flatFromMast.toFixed(1)} miles from the mast.`);
       exhibit(ctx, "will", "Will, executed",
-        `Executed ${willMonths} months before the death. Sole beneficiary: the victim's sister. ${c.defendant.name} is not named in the will or the codicil.`);
+        `Four pages, signed on every page and witnessed by two clerks. Executed ${willMonths} months before the death. Filed with the court as the instrument in force at the date of death.`);
       witness(ctx, "neighbour", neighbour, "Neighbour, 40 metres from the bar door",
         `${c.defendant.name} and ${c.victim} came out at the same time. They were not shouting. I know ${c.defendant.name}'s walk. I have had trouble with him over the fence line for two years.`);
       witness(ctx, "bartender", bartender, "Bartender",
-        `They had four drinks between them over an hour. No argument that I heard. ${c.victim} paid. ${c.defendant.name} left first, alone, and ${c.victim} stayed maybe twenty minutes more.`);
+        `They had four drinks between them over an hour. No argument that I heard. ${c.victim} paid. I was at the other end of the bar by then and I did not see them leave.`);
       witness(ctx, "tech", tech, "Crime scene technician",
         `The car was locked. No weapon in the vehicle or within 30 metres. No defensive wounds on the victim's hands. The driver's door was the only door with prints, and they were the victim's.`);
     },
     flaws: [
       (ctx) => {
         exhibit(ctx, "band", "Autopsy worksheet and margin note",
-          `Body temperature 31.1 C at ${ctx.at(212)}. Ambient 9 C. Gastric contents partially digested, consistent with a meal 90 minutes to three hours earlier. ${ctx.examiner}'s worksheet widens the interval to ${ctx.at(windowLo - 10)} to ${ctx.at(windowHi + lateBy)}, and notes that death after ${ctx.at(windowHi)} is not excluded.`);
+          `Body temperature taken at the scene at ${ctx.at(212)}, ambient 9 C. Gastric contents partially digested, consistent with a meal 90 minutes to three hours earlier. ${ctx.examiner}'s worksheet widens the interval to ${ctx.at(windowLo - 10)} to ${ctx.at(windowHi + lateBy)}, and notes that death after ${ctx.at(windowHi)} is not excluded.`);
         return {
           id: "death-window",
           name: "The death window is wider than the charge",
           link: "timeline",
-          thesis: `The autopsy {{autopsy}} interval is soft: the worksheet {{band}} widens it to ${ctx.at(windowLo - 10)} to ${ctx.at(windowHi + lateBy)}, which covers the hours after the defendant had left the bar and gone home, so the medical evidence does not place the death in his window.`,
+          thesis: `The autopsy {{autopsy}} gives an interval, but the examiner's own worksheet {{band}} widens it to ${ctx.at(windowLo - 10)} to ${ctx.at(windowHi + lateBy)}, and death after ${ctx.at(windowHi)}, when the defendant was not at the lot, is not excluded.`,
           tell: "The examiner's own worksheet puts death as late as the small hours.",
         };
       },
       (ctx) => {
         const sector = 1 + Math.floor(ctx.rnd() * 3);
         exhibit(ctx, "sector", "Cell site engineering map",
-          `Mast 1172 has three sectors of 120 degrees. Sector ${sector} covers the lot. The flat at ${ctx.street} is inside sector ${sector === 3 ? 3 : sector + 1}, at 1.4 miles, and is served by the same mast. An outgoing call from the flat logs identically to an outgoing call from the lot.`);
+          `Mast 1172 has three sectors of 120 degrees. Sector ${sector} covers the lot. The flat at ${ctx.street} is inside sector ${sector === 3 ? 3 : sector + 1}, at ${flatFromMast.toFixed(1)} miles, and is served by the same mast. An outgoing call from the flat logs identically to an outgoing call from the lot.`);
         return {
           id: "tower-sector",
           name: "The tower cannot separate two addresses",
@@ -85,17 +85,17 @@ export const murder: CaseModule = {
       },
       (ctx) => {
         exhibit(ctx, "bags", "Property locker log",
-          `Jacket logged on ${ctx.after(0)} into an unsealed plastic bag. Locker 14 opened six times before the lab receipt, none of the openings by the same officer, none with a reason recorded. Lab took possession on ${ctx.after(bagDays)}.`);
+          `Locker log, locker 14: seal 00412 was issued to ${ctx.officer} on ${ctx.after(1)}, the morning after the jacket was logged in, and the bag carried no seal until then. The locker was opened six times before the lab receipt, never by the same officer, never with a reason recorded. Lab took possession on ${ctx.after(1 + bagDays)}.`);
         return {
           id: "unsealed",
           name: "The jacket sat unsealed for days",
           link: "custody",
-          thesis: `The jacket sat in an unsealed bag for ${bagDays} days {{bags}} while the locker was opened six times with no reason recorded, so the stain's presence on the cuff cannot be attributed to the night of the death.`,
-          tell: `An unsealed bag and six unlogged locker openings over ${bagDays} days.`,
+          thesis: `The jacket went into the locker unsealed and the seal was issued the next morning {{bags}}, ${bagDays} days before the lab saw it, while the locker was opened six times with no reason recorded, so the stain on the cuff cannot be tied to the night of the death.`,
+          tell: `The seal was issued the morning after the jacket was logged in, and the locker was opened six times with no reason recorded.`,
         };
       },
       (ctx) => {
-        exhibit(ctx, "codicil", "Codicil and probate filing",
+        exhibit(ctx, "codicil", "Probate filing and testamentary note",
           `The will {{will}} was executed ${willMonths} months before the death. The sister is the sole beneficiary. A later handwritten note, unsigned, mentions "the money for the boat" and is not part of the instrument. Probate filed nine days after death.`);
         return {
           id: "no-beneficiary",

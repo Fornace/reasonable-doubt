@@ -1,9 +1,8 @@
 "use client";
 
-import { seatsFor } from "@/lib/mechanics";
+import { FLAW_FLOOR, seatsFor } from "@/lib/mechanics";
 import type { CaseFile, ChainLink, TranscriptTurn } from "@/lib/types";
 
-const FLOOR = 0.62;
 
 export default function StatePanel({
   caseFile,
@@ -18,7 +17,7 @@ export default function StatePanel({
 }) {
   const seats = seatsFor(jury);
   const reached = caseFile.flaws.filter((flaw) =>
-    history.some((turn) => turn.read.flaws.some((f) => f.id === flaw.id && f.p >= FLOOR)),
+    history.some((turn) => turn.read.flaws.some((f) => f.id === flaw.id && f.p >= FLAW_FLOOR)),
   );
 
   return (

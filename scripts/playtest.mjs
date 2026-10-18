@@ -115,11 +115,13 @@ let verdict = null;
 const started = Date.now();
 
 for (let round = 1; round <= Math.min(caseFile.rounds, LIMIT); round++) {
+  const targetFlaw = caseFile.flaws[(round - 1) % caseFile.flaws.length];
   const argument =
     MODE === "precise" ? preciseArgument(caseFile, round)
     : MODE === "sharp" ? sharpArgument(caseFile, round)
     : blindArgument(caseFile, round);
   console.log(`\n--- exchange ${round} -------------------------------------------------`);
+  if (MODE !== "blind") console.log(`TARGET ${targetFlaw.id} [${targetFlaw.link}]`);
   console.log(`DEFENCE: ${argument.slice(0, 220)}${argument.length > 220 ? "…" : ""}`);
   const turn = await turnRequest({ case: caseFile, chain, jury, round, history, argument });
 

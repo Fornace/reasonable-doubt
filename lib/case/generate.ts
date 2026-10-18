@@ -57,7 +57,7 @@ export function generateCase(seedInput?: string): CaseFile {
   }));
 
   return {
-    id: `CR-${int(rnd, 24, 26)}-${int(rnd, 1000, 9999)}`,
+    id: `CR-${ctx.year % 100}-${int(rnd, 1000, 9999)}`,
     seed,
     charge: body.charge,
     chargeKey: module.key,
@@ -68,8 +68,15 @@ export function generateCase(seedInput?: string): CaseFile {
     incident: resolveTokens(body.incident, tokens),
     theory: resolveTokens(body.theory, tokens),
     links,
-    exhibits: exhibits.map(({ key: _key, ...rest }) => rest),
-    witnesses: ctx.witnesses.map(({ key: _key, ...rest }, index) => ({ id: `w${index + 1}`, ...rest })),
+    exhibits: exhibits.map(({ key: _key, detail, ...rest }) => ({
+      ...rest,
+      detail: resolveTokens(detail, tokens),
+    })),
+    witnesses: ctx.witnesses.map(({ key: _key, statement, ...rest }, index) => ({
+      id: `w${index + 1}`,
+      ...rest,
+      statement: resolveTokens(statement, tokens),
+    })),
     clientStatement: resolveTokens(body.clientStatement, tokens),
     opening: resolveTokens(body.theory, tokens),
     flaws: flaws.map((flaw) => ({

@@ -9,7 +9,7 @@ function between(table: number[], position: number): number {
   const high = Math.min(table.length - 1, low + 1);
   return table[low] + (table[high] - table[low]) * (at - low);
 }
-const FLAW_FLOOR = 0.62;
+export const FLAW_FLOOR = 0.55;
 const MAX_DAMAGE = 60;
 
 export interface Resolution {

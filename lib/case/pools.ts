@@ -14,7 +14,9 @@ export interface Ctx {
   victim: string;
   place: string;
   street: string;
+  otherStreet: string;
   district: string;
+  year: number;
   date: string;
   weekday: string;
   incident: number;
@@ -72,8 +74,16 @@ const OFFICERS = ["Sgt. A. Reyes", "Off. J. Mallory", "Det. C. Okonjo", "Off. P.
 const EXAMINERS = ["Dr. E. Sarkis", "Dr. L. Mbeki", "Dr. H. Prosser"];
 const JUDGES = ["Hon. Imre Korda"];
 const PROSECUTORS = ["ADA Vera Halvorsen"];
-const MONTHS = ["March", "October", "January", "June", "November", "April"];
-const WEEKDAYS = ["Tuesday", "Thursday", "Saturday", "Monday", "Wednesday"];
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+const SELECTED_MONTHS = [2, 9, 0, 5, 10, 3]; // March, October, January, June, November, April
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const STREETS = [
+  "Halstead Avenue", "Cormorant Street", "Deacon Row", "Ferrier Lane", "Anselm Road",
+  "Kestrel Way", "Brindle Road", "Voss Avenue",
+];
 
 /** Dates in this record are day-and-month only; the fiction does not need leap years. */
 export function dayOf(date: string, offset: number): string {
@@ -98,6 +108,7 @@ export function clockOf(minutes: number): string {
 
 export function makeCtx(rnd: Rng, caseId: string, gender: "m" | "f"): Ctx {
   const usedFirst = new Set<string>();
+  const usedLast = new Set<string>();
   const firstOf = (pool: readonly string[]): string => {
     for (let attempt = 0; attempt < 40; attempt++) {
       const name = pick(rnd, pool);
@@ -108,15 +119,29 @@ export function makeCtx(rnd: Rng, caseId: string, gender: "m" | "f"): Ctx {
     }
     return pick(rnd, pool);
   };
-  const person = (g: "m" | "f"): string =>
-    `${firstOf(g === "m" ? MALE_FIRST : FEMALE_FIRST)} ${pick(rnd, LAST)}`;
+  const lastOf = (): string => {
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const name = pick(rnd, LAST);
+      if (!usedLast.has(name)) {
+        usedLast.add(name);
+        return name;
+      }
+    }
+    return pick(rnd, LAST);
+  };
+  const person = (g: "m" | "f"): string => `${firstOf(g === "m" ? MALE_FIRST : FEMALE_FIRST)} ${lastOf()}`;
 
   const venue = pick(rnd, VENUES);
+  const otherStreet = pick(rnd, STREETS.filter((street) => street !== venue.street));
   const defendantName = person(gender);
   const cast = Array.from({ length: 7 }, (_, i) => person(i % 2 === 0 ? "m" : "f"));
   let deck = 0;
   const incident = int(rnd, 0, 300) + (rnd() > 0.5 ? 0 : 1200);
-  const dateValue = `${int(rnd, 9, 27)} ${pick(rnd, MONTHS)}`;
+  const year = int(rnd, 24, 26) + 2000;
+  const monthName = MONTHS[SELECTED_MONTHS[Math.floor(rnd() * SELECTED_MONTHS.length)]];
+  const dayNumber = int(rnd, 9, 27);
+  const dateValue = `${dayNumber} ${monthName}`;
+  const weekday = WEEKDAY_NAMES[new Date(Date.UTC(year, MONTHS.indexOf(monthName), dayNumber)).getUTCDay()];
   const amount = `$${int(rnd, 6, 48) * 500 + 250}`;
   const ctx: Ctx = {
     rnd,
@@ -129,9 +154,11 @@ export function makeCtx(rnd: Rng, caseId: string, gender: "m" | "f"): Ctx {
     victim: person(gender),
     place: venue.name,
     street: venue.street,
+    otherStreet,
+    year,
     district: pick(rnd, DISTRICTS),
     date: dateValue,
-    weekday: pick(rnd, WEEKDAYS),
+    weekday,
     incident,
     clock: clockOf,
     time: clockOf(incident),

@@ -32,7 +32,7 @@ export async function prosecute(
   argument: string,
   read: DefenseRead,
 ): Promise<Prosecution> {
-  const flawHits = read.flaws.filter((f) => f.p >= 0.62);
+  const flawHits = read.flaws.filter((f) => f.p >= 0.55);
   const readout = [
     `Attacks: ${read.link === "none" ? "nothing specific" : LINK_LABEL[read.link]}`,
     `Force: ${read.force.toFixed(2)} of 4`,

@@ -22,9 +22,13 @@ The game is the scoring. Nothing in the codebase can tell whether a sentence "id
 ```bash
 npm install
 printf 'FORNACE_LLM_BASE_URL=https://llm.fornace.net\nFORNACE_LLM_API_KEY=<key>\n' > .env.local
-npm run dev            # http://localhost:4321
-node scripts/playtest.mjs --seed alpha1 --mode precise   # plays a whole trial over the real API
+npm run dev                                                  # http://localhost:4321
+node scripts/playtest.mjs --seed alpha1 --mode precise     # plays a whole trial over the real API
+node scripts/playtest.mjs --seed alpha1 --mode blind       # the same case, argued badly
+node scripts/audit.mjs --cases 10                          # has a model hunt contradictions in generated files
 ```
+
+`--mode precise` argues each defect as the record states it; `--mode sharp` argues them crudely; `--mode blind` argues nothing in particular. On seed `bravo2` precise acquits, sharp hangs, blind convicts.
 
 Cases are deterministic from their seed, which is in the URL: `/?c=alpha1`. `node scripts/case.mjs alpha1` prints a case file without the UI.
 

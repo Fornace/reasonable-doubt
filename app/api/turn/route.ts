@@ -110,7 +110,7 @@ export async function POST(request: Request) {
         );
         const alreadyFound = new Set<string>();
         for (const earlier of history) {
-          for (const flaw of earlier.read.flaws) if (flaw.p >= 0.62) alreadyFound.add(flaw.id);
+          for (const flaw of earlier.read.flaws) if (flaw.p >= 0.55) alreadyFound.add(flaw.id);
         }
         const resolution = resolveExchange(caseFile, chain, jury, defense.read, {
           rebuttal: exchangeRead.rebuttal,

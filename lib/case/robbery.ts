@@ -26,23 +26,23 @@ export const robbery: CaseModule = {
       identity: `${clerk} identified ${c.defendant.name} from a photo array within a day of the robbery, and the counter camera {{camera}} caught the man at the drawer.`,
       timeline: `The register audit {{register}} shows the drawer open at ${c.time}, and ${c.defendant.name}'s phone hit the mast on ${c.street} at ${c.at(6)}.`,
       forensics: `${c.defendant.name}'s left palm print was lifted from the customer counter {{print}}. It was not there before the robbery.`,
-      custody: `The cash tray was taken into evidence at ${c.at(52)} by ${c.officer} and sealed the same morning, according to the property log {{gap}}.`,
+      custody: `The cash tray was taken into evidence at ${c.at(52)} by ${c.officer} and sealed the same morning, with a continuous property record.`,
       motive: `${c.defendant.name} was ${c.amount} in arrears on a title loan secured against his truck, and the lender's file {{lender}} says the account was in default.`,
     },
     clientStatement: `I buy cigarettes there most weeks. I was not there that night. I was at the depot on ${c.street} until the shift ended at ${c.at(230)}, and then I went home. My palm is on every counter on that block.`,
     base: (ctx) => {
-      exhibit(ctx, "camera", "Counter camera still, 02:14:07", 
-        `Single frame exported from the unit above the door. The figure is ${cameraDistance} metres from the lens, hood up, head turned ${hoodAngle} degrees away. No facial features. The lens is a 2.8 mm fixed at 1.4 m, pointed at the door.`);
+      exhibit(ctx, "camera", `Counter camera still, ${c.time}:07`, 
+        `Single frame exported from the unit mounted above the door. The figure is ${cameraDistance} metres from the lens, hood up, head turned ${hoodAngle} degrees away. No facial features are recorded in the frame. The lens is a 2.8 mm fixed at 1.4 m.`);
       exhibit(ctx, "register", "Register audit tape", 
         `Drawer opened ${c.time}:04, closed ${c.time}:41. Cash removed ${takings}. No void, no refund, no manager override.`);
       exhibit(ctx, "lender", "Title loan statement", 
-        `Balance ${c.amount}, minimum payment 90 days late. Statement period ended eleven days before the robbery.`);
+        `Arrears ${c.amount}. Minimum payment 90 days late. Statement period ended eleven days before the robbery.`);
       exhibit(ctx, "call", "Recorded 911 call", 
         `${clerk} reports a robbery at ${c.time}:51, describes the man as "tall, grey hood, young", and says he ran left toward ${c.street}.`);
       exhibit(ctx, "print", "Latent print report", 
-        `One left palm, lifted from the customer-side counter, 62 cm from the register. Two ridge points matched. Lifted ${c.at(96)}.`);
+        `One left palm, lifted from the customer-side counter, 62 cm from the register, developed and reported as an identification of the defendant. Lifted ${c.at(96)}.`);
       witness(ctx, "clerk", clerk, "Night clerk, complainant",
-        `He was at the counter. Hood, grey, pulled up. I saw his face for maybe two seconds when he came in and then he turned away. I picked him out the next morning and I am sure.`);
+        `He was at the counter. Grey hood. I saw his face when he came in, two seconds or three, and I have not forgotten it. I picked him out the next morning and I am sure.`);
       witness(ctx, "customer", customer, "Customer outside, on the pavement",
         `I was waiting for the bus. A man came out fast, grey top, and went left. I did not see his face. I would not be able to pick him out.`);
       witness(ctx, "responder", responder, "First responding officer",

@@ -1,5 +1,6 @@
 "use client";
 
+import { FLAW_FLOOR } from "@/lib/mechanics";
 import type { CaseFile, Exchange, Verdict } from "@/lib/types";
 
 const CLASS: Record<Verdict["outcome"], string> = {
@@ -22,7 +23,7 @@ export default function VerdictCard({
 }) {
   const found = new Set<string>();
   for (const turn of history) {
-    for (const flaw of turn.read.flaws) if (flaw.p >= 0.62) found.add(flaw.id);
+    for (const flaw of turn.read.flaws) if (flaw.p >= FLAW_FLOOR) found.add(flaw.id);
   }
 
   return (
