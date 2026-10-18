@@ -1,0 +1,10 @@
+import { generateCase } from "../lib/case/generate.ts";
+const seed = process.argv[2];
+const c = generateCase(seed);
+console.log(c.id, "|", c.charge, "|", c.setting);
+console.log("\nTHEORY:", c.theory);
+console.log("\nLINKS:"); c.links.forEach(l=>console.log(" -", l.label+":", l.claim));
+console.log("\nEXHIBITS:"); c.exhibits.forEach(e=>console.log(" ", e.id, "—", e.label+":", e.detail));
+console.log("\nWITNESSES:"); c.witnesses.forEach(w=>console.log(" ", w.name+":", w.statement));
+console.log("\nFLAWS:"); c.flaws.forEach(f=>console.log(" *", f.name, "["+f.link+"] ->", f.thesis));
+console.log("\nUNRESOLVED TOKENS:", /\{\{/.test(JSON.stringify(c)));
