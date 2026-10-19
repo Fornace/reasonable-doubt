@@ -11,7 +11,7 @@ Live: https://reasonable-doubt.vercel.app
 3. **The court reads you.** Jev (`fornace-jev`, `POST /v1/systemone`) answers one batch of typed questions from a single read of the docket: which link you attacked (`choice`), how strong the argument is (`score` 0-4), whether you reached each planted defect (`noul`, one per defect), whether you invented facts outside the record (`noul`), whether you conceded (`noul`), and whether you are repeating yourself (`noul`).
 4. **The People answer.** `fornace-flash` writes the prosecutor's reply from the docket, the transcript, and jev's read of your argument. She defends the link you attacked, objects when there is a real evidentiary ground, and never concedes.
 5. **The ruling.** A second jev read scores whether that answer held (`score`), whether the objection would be sustained (`noul`), and whether the prosecution misstated the record (`noul`).
-6. **The board moves.** Link integrity falls, the jury follows, and the seats fill. Three broken links or a weaker chain at the end of the seventh exchange decides it.
+6. **The board moves.** Link integrity falls, the jury follows, and the seats fill. Two broken links dismiss the case. Otherwise the jury decides after the seventh exchange: eight of twelve seats acquit, four or fewer convict, anything between hangs.
 
 ## Why it could not exist without models
 
