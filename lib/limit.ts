@@ -13,6 +13,8 @@ export function rateLimited(ip: string): boolean {
 }
 
 export function clientIp(request: Request): string {
+  const real = request.headers.get("x-real-ip");
+  if (real) return real.trim();
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) return forwarded.split(",")[0].trim();
   return request.headers.get("x-real-ip") ?? "local";

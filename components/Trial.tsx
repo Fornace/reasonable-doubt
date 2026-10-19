@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { guardedFetch } from "@/lib/human";
 import type { CaseFile, ChainLink, Exchange, TranscriptTurn, Verdict } from "@/lib/types";
 import { Court, type TurnLike } from "./Court";
 import Record from "./Record";
@@ -114,7 +115,7 @@ export default function Trial() {
     setSpoken(false);
     setLive({ argument, round });
     try {
-      const response = await fetch("/api/turn", {
+      const response = await guardedFetch("/api/turn", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ case: caseFile, chain, jury, round, history: turns.map(toTurn), argument }),

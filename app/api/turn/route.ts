@@ -1,5 +1,6 @@
 import { closingRemarks } from "@/lib/closing";
-import { clientIp, rateLimited } from "@/lib/limit";
+import { guard } from "@/lib/guard";
+import { clientIp } from "@/lib/limit";
 import { endOfTrial, resolveExchange, verdictOf } from "@/lib/mechanics";
 import { prosecute } from "@/lib/prosecute";
 import { readDefense } from "@/lib/read";
@@ -56,9 +57,13 @@ function checkChain(value: unknown, caseFile: CaseFile): ChainLink[] {
 }
 
 export async function POST(request: Request) {
-  if (rateLimited(clientIp(request))) {
-    return fail("this courtroom is at capacity, try again shortly", 429);
-  }
+  const check = await guard({
+    ip: clientIp(request),
+    cookie: request.headers.get("cookie") ?? undefined,
+    token: request.headers.get("x-turnstile-token") ?? undefined,
+    action: "argue",
+  });
+  if (!check.ok) return Response.json(check.body, { status: check.status, headers: { "cache-control": "no-store" } });
 
   let body: TurnBody;
   try {
@@ -178,6 +183,7 @@ export async function POST(request: Request) {
       "content-type": "text/event-stream; charset=utf-8",
       "cache-control": "no-cache, no-transform",
       "x-accel-buffering": "no",
+      ...(check.setCookie ? { "set-cookie": check.setCookie } : {}),
     },
   });
 }
